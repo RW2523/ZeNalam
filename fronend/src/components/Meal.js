@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 function Meal() {
   const [image, setImage] = useState(null);
@@ -22,7 +23,7 @@ function Meal() {
     const formData = new FormData();
     formData.append("image", image);
 
-    const res = await axios.post("http://localhost:8080/api/auth/food", formData, {
+    const res = await axios.post(`${API_BASE_URL}/api/auth/food`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -47,7 +48,7 @@ function Meal() {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:8080/api/auth/meals", data, {
+      await axios.post(`${API_BASE_URL}/api/auth/meals`, data, {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
@@ -59,7 +60,7 @@ function Meal() {
     const id = localStorage.getItem("id");
 
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/mealslog", JSON.stringify(id), {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/mealslog`, id != null ? String(id) : "", {
         headers: { "Content-Type": "application/json" },
       });
 

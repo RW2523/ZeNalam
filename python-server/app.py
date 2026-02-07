@@ -99,65 +99,55 @@ def predict_food():
         logging.error(f"Food prediction error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# @app.route("/predict", methods=["POST", "GET"])
-# def predict():
-#     try:
-        
-#         user_data = request.get_json()
-#         print(f"Prediction: {user_data}")
-#         if not user_data:
-#             return jsonify({"error": "No input data provided"}), 400
+@app.route("/predict", methods=["POST", "GET"])
+def predict():
+    try:
+        user_data = request.get_json()
+        if not user_data:
+            return jsonify({"error": "No input data provided"}), 400
 
-#         # Convert features list to named dict if necessary
-#         if 'features' in user_data:
-#             features = user_data['features']
-#             if len(features) != len(ordered_fields):
-#                 return jsonify({
-#                     "error": f"Expected {len(ordered_fields)} features, got {len(features)}"
-#                 }), 400
-#             for i, field in enumerate(ordered_fields):
-#                 user_data[field] = features[i]
+        # Convert features list to named dict if necessary
+        if 'features' in user_data:
+            features = user_data['features']
+            if len(features) != len(ordered_fields):
+                return jsonify({
+                    "error": f"Expected {len(ordered_fields)} features, got {len(features)}"
+                }), 400
+            for i, field in enumerate(ordered_fields):
+                user_data[field] = features[i]
 
-#         # Construct full input dictionary using user-provided values or defaults
-#         full_input = {}
-#         for field in default_input:
-#             if field in user_data:
-#                 full_input[field] = user_data[field]
-#             else:
-#                 full_input[field] = default_input[field]
+        # Construct full input dictionary using user-provided values or defaults
+        full_input = {}
+        for field in default_input:
+            if field in user_data:
+                full_input[field] = user_data[field]
+            else:
+                full_input[field] = default_input[field]
 
-#         # Build DataFrame
-#         df_input = pd.DataFrame([full_input])
+        # Build DataFrame
+        df_input = pd.DataFrame([full_input])
 
-#         # Validate and encode categorical features
-#         for col in allowed_values:
-#             val = df_input[col][0]
-#             if val not in allowed_values[col]:
-#                 return jsonify({
-#                     "error": f"Invalid value for {col}: '{val}'. Allowed: {allowed_values[col]}"
-#                 }), 400
-#             df_input[col] = le_dict[col].transform([val])
+        # Validate and encode categorical features
+        for col in allowed_values:
+            val = df_input[col][0]
+            if val not in allowed_values[col]:
+                return jsonify({
+                    "error": f"Invalid value for {col}: '{val}'. Allowed: {allowed_values[col]}"
+                }), 400
+            df_input[col] = le_dict[col].transform([val])
 
-#         # Predict
-#         prediction = model.predict(df_input)
+        # Predict
+        prediction = model.predict(df_input)
+        decoded = le_dict['Sleep Disorder'].inverse_transform(prediction)
+        safe_result = [
+            "Unknown" if (isinstance(p, float) and pd.isna(p)) else str(p)
+            for p in decoded
+        ]
+        return jsonify({"prediction": safe_result})
 
-#         logging.info(f"Prediction: {prediction}")
-
-#         # Decode using label encoder
-#         decoded = le_dict['Sleep Disorder'].inverse_transform(prediction)
-
-#         logging.info(f"Prediction: {decoded}")
-
-#         # Replace NaN with a safe string
-#         safe_result = [
-#             "Unknown" if (isinstance(p, float) and pd.isna(p)) else str(p)
-#             for p in decoded
-#         ]
-
-#         return jsonify({"prediction": safe_result})
-
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        logging.exception("Predict error")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5002)

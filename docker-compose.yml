@@ -1,7 +1,7 @@
 services:
 
   frontend:
-    build: ./frontend
+    build: ./fronend
     ports:
       - "3000:80"
     depends_on:
@@ -24,6 +24,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/wellness
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
+      ML_SERVICE_URL: http://python-server:5002
     depends_on:
       - db
       - python-server

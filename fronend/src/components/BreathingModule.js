@@ -134,8 +134,8 @@ const BreathingModule = () => {
               <button className="action-btn" onClick={() => window.location.reload()}>
                 Start Again
               </button>
-              <button className="action-btn" onClick={() => navigate("/")}>
-                Home
+              <button className="action-btn" onClick={() => navigate("/dashboard")}>
+                Dashboard
               </button>
             </div>
           </div>

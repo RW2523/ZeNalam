@@ -8,6 +8,19 @@
   border-radius: 30px;
 }
 
+.activity-cards-loading,
+.activity-cards-error,
+.activity-cards-empty {
+  width: 100%;
+  margin: 0.5rem 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.activity-cards-error {
+  color: #b91c1c;
+}
+
 .activity-card {
   flex: 1 1 30%; 
   max-width: 300px; 

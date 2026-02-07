@@ -1,29 +1,54 @@
 import React, { useEffect, useState } from 'react';
-import { FaBiking, FaRunning, FaWalking } from 'react-icons/fa';
+import { FaBiking, FaRunning, FaWalking, FaDumbbell } from 'react-icons/fa';
 import './styles/ActivityCards.css';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const iconMap = {
     cycling: <FaBiking />,
     running: <FaRunning />,
     walking: <FaWalking />,
+    cardio: <FaRunning />,
+    strength: <FaDumbbell />,
+    flexibility: <FaWalking />,
+};
+
+const getActivityIcon = (type) => {
+    if (!type) return <FaDumbbell />;
+    const key = String(type).toLowerCase();
+    return iconMap[key] || <FaDumbbell />;
 };
 
 const ActivityCards = () => {
     const [activities, setActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/activities')
-            .then(response => setActivities(response.data))
-            .catch(error => console.error('Error fetching activities:', error));
+        setLoading(true);
+        setError(null);
+        axios
+            .get(`${API_BASE_URL}/api/activities`)
+            .then((response) => setActivities(Array.isArray(response.data) ? response.data : []))
+            .catch((err) => {
+                console.error('Error fetching activities:', err);
+                setError(err.message || 'Failed to load activities');
+                setActivities([]);
+            })
+            .finally(() => setLoading(false));
     }, []);
 
     return (
         <div className="activity-cards">
+            {loading && <p className="activity-cards-loading">Loading activities...</p>}
+            {error && <p className="activity-cards-error">{error}</p>}
+            {!loading && !error && activities.length === 0 && (
+                <p className="activity-cards-empty">No activities yet.</p>
+            )}
             {activities.map((activity, index) => (
-                <div className="activity-card" key={index}>
+                <div className="activity-card" key={activity.id || index}>
                     <div className="activity-header">
-                        <div className="activity-icon">{iconMap[activity.type]}</div>
+                        <div className="activity-icon">{getActivityIcon(activity.type)}</div>
                         <div className="activity-name">{activity.name}</div>
                     </div>
                     <div className="activity-info">

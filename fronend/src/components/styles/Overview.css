@@ -12,6 +12,19 @@
   font-weight: 600;
 }
 
+.overview-loading,
+.overview-error {
+  margin: 0.5rem 0;
+  font-size: 14px;
+}
+
+.overview-error {
+  color: #fef2f2;
+  background: rgba(185, 28, 28, 0.3);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
 .overview-content {
   display: flex;
   justify-content: space-between;

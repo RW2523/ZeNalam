@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const DonutChart = () => {
     const [chartData, setChartData] = useState({
@@ -12,7 +13,7 @@ const DonutChart = () => {
     });
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/workout-distribution')
+        axios.get(`${API_BASE_URL}/api/workout-distribution`)
             .then(response => {
                 setChartData({
                     labels: response.data.labels,

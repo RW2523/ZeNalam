@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 const Register = () => {
   const [user, setUser] = useState({ name: '', email: '', password: '' });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
   const navigate = useNavigate();
 
   const register = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setMessageType('');
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/register', user);
-      navigate('/'); // Redirect to login page after successful registration
+      await axios.post(`${API_BASE_URL}/api/auth/register`, user);
+      setMessage('Account created successfully! Redirecting to login...');
+      setMessageType('success');
+      setTimeout(() => navigate('/'), 1500);
     } catch (err) {
-       // Show error message
+      const msg = err.response?.data?.message || err.message || 'Registration failed.';
+      setMessage(msg === 'User already exists' ? 'An account with this email already exists.' : msg);
+      setMessageType('error');
     }
   };
 
@@ -52,9 +62,15 @@ const Register = () => {
         />
         
         <button type="submit" style={styles.button}>Register</button>
+
+        {message && (
+          <p style={{ ...styles.message, color: messageType === 'error' ? '#dc3545' : '#28a745' }}>
+            {message}
+          </p>
+        )}
       </form>
-      
-      <p style={styles.footerText}>Already have an account? <a href="/" style={styles.link}>Login</a></p>
+
+      <p style={styles.footerText}>Already have an account? <Link to="/" style={styles.link}>Login</Link></p>
     </div>
   );
 };
@@ -130,6 +146,11 @@ const styles = {
     textDecoration: 'none',
     color: '#2e8b57',
     fontWeight: 'bold',
+  },
+  message: {
+    marginTop: '15px',
+    fontSize: '14px',
+    textAlign: 'center',
   },
 };
 

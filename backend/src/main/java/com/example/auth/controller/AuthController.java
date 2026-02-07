@@ -7,6 +7,7 @@ import com.example.auth.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,9 @@ import com.example.auth.model.MealLog;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    @Value("${ml.service.url:http://localhost:5002}")
+    private String mlServiceUrl;
 
     @Autowired
     private AuthService authService;
@@ -71,7 +75,7 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String
     public ResponseEntity<?> triggerModel(@RequestBody InputData input) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String mlUrl = "http://localhost:5002/predict";
+            String mlUrl = mlServiceUrl + "/predict";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -90,7 +94,7 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String
         try {
             System.out.println("Input data: " + inputData);
             RestTemplate restTemplate = new RestTemplate();
-            String mlUrl = "http://host.docker.internal:5002/predict"; // Adjust if needed
+            String mlUrl = mlServiceUrl + "/predict";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -165,7 +169,7 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String
     @PostMapping("/food")
     public ResponseEntity<Map<String, String>> uploadFoodImage(@RequestParam("image") MultipartFile image) {
         try {
-        String mlUrl = "http://host.docker.internal:5002/food"; // Flask backend
+        String mlUrl = mlServiceUrl + "/food";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

@@ -1,37 +1,40 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 const Login = () => {
   const navigate = useNavigate();
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const [messageType, setMessageType] = useState('');
 
   const login = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setMessageType('');
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
 
-      if(res.data.message == "Invalid credentials"){
+      if (res.data.message === 'Invalid credentials') {
         setMessage('Try again! Invalid credentials.');
-      }
-      else if (res.data.message.includes("Login successful")){
-        var message = res.data.message;
-        var char_index = message.indexOf("ID=");
-        if(char_index){
-          var user_id = message.substr(char_index+3);
-          localStorage.setItem('id', user_id);
+        setMessageType('error');
+      } else if (res.data.message && res.data.message.includes('Login successful')) {
+        const msg = res.data.message;
+        const charIndex = msg.indexOf('ID=');
+        if (charIndex !== -1) {
+          const userId = msg.substring(charIndex + 3).trim();
+          localStorage.setItem('id', userId);
         }
+        setMessage('Login successful! Redirecting...');
         setMessageType('success');
         localStorage.setItem('userEmail', email);
-        setTimeout(() => navigate('/Dashboard'), 1000); // Delay for user to read message
+        setTimeout(() => navigate('/dashboard'), 1000);
       }
     } catch (err) {
-      setMessage('Login failed. Please check your credentials.');
+      setMessage(err.response?.data?.message || 'Login failed. Please check your credentials.');
       setMessageType('error');
     }
   };

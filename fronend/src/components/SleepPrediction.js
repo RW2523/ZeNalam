@@ -1,12 +1,33 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const GENDERS = ['Male', 'Female'];
 const OCCUPATIONS = ['Software Engineer', 'Doctor', 'Sales Representative', 'Teacher', 'Scientist'];
 const BMI_CATEGORIES = ['Overweight', 'Normal', 'Obese'];
 const BLOOD_PRESSURES = ['126/83', '125/80', '140/90', '131/86'];
 
+const DEFAULT_VALUES = {
+  Gender: 'Male',
+  Occupation: 'Doctor',
+  'BMI Category': 'Normal',
+  'Blood Pressure': '125/80',
+  Age: 25,
+  'Sleep Duration': 7,
+  'Quality of Sleep': 3,
+  'Physical Activity Level': 30,
+};
 
+const FEATURE_ORDER = [
+  'Gender',
+  'Occupation',
+  'BMI Category',
+  'Blood Pressure',
+  'Age',
+  'Sleep Duration',
+  'Quality of Sleep',
+  'Physical Activity Level',
+];
 
 function SleepPrediction() {
   const [form, setForm] = useState({
@@ -20,60 +41,50 @@ function SleepPrediction() {
     'Physical Activity Level': '',
   });
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setResult(null);
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setResult(null);
+    setError(null);
 
     try {
-      const defaults = {
-        Gender: 'Male',
-        Occupation: 'Doctor',
-        'BMI Category': 'Normal',
-        'Blood Pressure': 'Normal',
-        Age: 25,
-        'Sleep Duration': 7,
-        'Quality of Sleep': 3,
-        'Physical Activity Level': 3
-      };
-
-      const featureOrder = [
-        'Gender',
-        'Occupation',
-        'BMI Category',
-        'Blood Pressure',
-        'Age',
-        'Sleep Duration',
-        'Quality of Sleep',
-        'Physical Activity Level'
-      ];
-
       const payload = {
-        features: featureOrder.map((key) => {
-          const value = form[key] || defaults[key];
-          return isNaN(Number(value)) ? value : Number(value);
-        })
+        features: FEATURE_ORDER.map((key) => {
+          const value = form[key] !== '' && form[key] !== undefined ? form[key] : DEFAULT_VALUES[key];
+          const num = Number(value);
+          return Number.isNaN(num) ? value : num;
+        }),
       };
 
-      // Force value for demonstration if needed
-      payload.features[3] = "140/90";
+      const res = await axios.post(
+        `${API_BASE_URL}/api/auth/pred`,
+        { payload },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
 
-      const res = await axios.post('http://localhost:8080/api/auth/pred', { payload }, {
-        headers: { "Content-Type": "application/json" }
-      });
-
-      setResult(res.data.prediction ?? JSON.stringify(res.data));
+      if (res.data.error) {
+        setError(res.data.error);
+        setResult(null);
+      } else {
+        setResult(res.data.prediction ?? null);
+        setError(null);
+      }
     } catch (err) {
-      console.error(err);
-      setResult("Prediction failed.");
+      const msg = err.response?.data?.error || err.message || 'Prediction failed.';
+      setError(msg);
+      setResult(null);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -162,7 +173,7 @@ function SleepPrediction() {
           {loading ? 'Predicting...' : 'Submit'}
         </button>
 
-        {result !== null && (
+        {result != null && (
           <div style={{
             marginTop: '1.5rem',
             padding: '1rem',
@@ -171,7 +182,20 @@ function SleepPrediction() {
             fontSize: '1.1rem',
             color: '#003366'
           }}>
-            <strong>Prediction (Encoded):</strong> {result}
+            <strong>Sleep disorder prediction:</strong> {result}
+          </div>
+        )}
+
+        {error && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1rem',
+            background: '#f8d7da',
+            borderLeft: '5px solid #dc3545',
+            fontSize: '1rem',
+            color: '#721c24'
+          }}>
+            {error}
           </div>
         )}
 

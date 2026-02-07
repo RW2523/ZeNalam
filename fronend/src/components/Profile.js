@@ -1,7 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function ProfilePage() {
-  const [profile, setProfile] = useState({
+const PROFILE_STORAGE_KEY = 'wellness_profile';
+
+function loadStoredProfile() {
+  try {
+    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return { ...getEmptyProfile(), ...parsed };
+    }
+  } catch (_) {}
+  return null;
+}
+
+function getEmptyProfile() {
+  return {
     name: '',
     email: '',
     age: '',
@@ -19,15 +32,38 @@ function ProfilePage() {
     stressLevel: '',
     meditationHabit: '',
     waterIntake: '',
-    exerciseFrequency: ''
-  });
+    exerciseFrequency: '',
+  };
+}
+
+function ProfilePage() {
+  const [profile, setProfile] = useState(getEmptyProfile());
+  const [saveMessage, setSaveMessage] = useState('');
+
+  useEffect(() => {
+    const stored = loadStoredProfile();
+    const email = localStorage.getItem('userEmail') || '';
+    const name = (typeof stored?.name === 'string' && stored.name) ? stored.name : '';
+    setProfile((prev) => ({
+      ...prev,
+      ...(stored || {}),
+      email: email || (stored && stored.email) || prev.email,
+      name: name || prev.name,
+    }));
+  }, []);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
+    setSaveMessage('');
   };
 
   const handleSubmit = () => {
-    console.log("Submitted Profile:", profile);
+    try {
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+      setSaveMessage('Profile saved.');
+    } catch (_) {
+      setSaveMessage('Failed to save.');
+    }
   };
 
   return (
@@ -100,6 +136,11 @@ function ProfilePage() {
           ))}
         </div>
 
+        {saveMessage && (
+          <p style={{ marginTop: '1rem', textAlign: 'center', color: saveMessage === 'Profile saved.' ? '#28a745' : '#dc3545' }}>
+            {saveMessage}
+          </p>
+        )}
         <button onClick={handleSubmit} style={styles.submitButton}>
           Save Profile
         </button>

@@ -15,8 +15,9 @@ function Sidebar() {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    // Optional: clear auth tokens or session storage here
-    navigate('/'); // or '/login' depending on your login route
+    localStorage.removeItem('id');
+    localStorage.removeItem('userEmail');
+    navigate('/');
   };
 
   return (

@@ -12,6 +12,7 @@ import {
     Legend,
     Filler,
 } from 'chart.js';
+import { API_BASE_URL } from '../config';
 import './styles/Overview.css';
 
 ChartJS.register(
@@ -25,23 +26,23 @@ ChartJS.register(
     Filler
 );
 
+const emptyDataset = {
+    label: 'Steps',
+    data: [],
+    backgroundColor: 'rgba(106, 76, 147, 0.2)',
+    borderColor: '#6a4c93',
+    borderWidth: 2,
+    pointBackgroundColor: '#ff6f61',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#ff6f61',
+    pointHoverBorderColor: '#fff',
+    fill: true,
+};
+
 const Overview = () => {
     const [chartData, setChartData] = useState({
         labels: [],
-        datasets: [
-            {
-                label: 'Steps',
-                data: [],
-                backgroundColor: 'rgba(106, 76, 147, 0.2)',
-                borderColor: '#6a4c93',
-                borderWidth: 2,
-                pointBackgroundColor: '#ff6f61',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#ff6f61',
-                pointHoverBorderColor: '#fff',
-                fill: true,
-            },
-        ],
+        datasets: [{ ...emptyDataset }],
     });
 
     const [stats, setStats] = useState({
@@ -50,34 +51,34 @@ const Overview = () => {
         targetProgress: 0,
     });
 
-    useEffect(() => {
-        axios.get('http://localhost:8080/api/overviews')
-            .then(response => {
-                const { months, steps, timeProgress, stepProgress, targetProgress } = response.data;
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
 
+    useEffect(() => {
+        setLoading(true);
+        setFetchError(null);
+        axios
+            .get(`${API_BASE_URL}/api/overviews`)
+            .then((response) => {
+                const { months = [], steps = [], timeProgress = 0, stepProgress = 0, targetProgress = 0 } = response.data;
                 setChartData({
-                    labels: months,
+                    labels: Array.isArray(months) ? months : [],
                     datasets: [
                         {
-                            label: 'Steps',
-                            data: steps,
-                            backgroundColor: 'rgba(106, 76, 147, 0.2)',
-                            borderColor: '#6a4c93',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#ff6f61',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#ff6f61',
-                            pointHoverBorderColor: '#fff',
-                            fill: true,
+                            ...emptyDataset,
+                            data: Array.isArray(steps) ? steps : [],
                         },
                     ],
                 });
-
                 setStats({ timeProgress, stepProgress, targetProgress });
             })
-            .catch(error => {
-                console.error('Failed to fetch overview data:', error);
-            });
+            .catch((err) => {
+                console.error('Failed to fetch overview data:', err);
+                setFetchError(err.message || 'Failed to load overview');
+                setChartData({ labels: [], datasets: [{ ...emptyDataset, data: [] }] });
+                setStats({ timeProgress: 0, stepProgress: 0, targetProgress: 0 });
+            })
+            .finally(() => setLoading(false));
     }, []);
 
     const options = {
@@ -116,6 +117,8 @@ const Overview = () => {
     return (
         <div className="overview">
             <h2>Overview</h2>
+            {loading && <p className="overview-loading">Loading...</p>}
+            {fetchError && <p className="overview-error">{fetchError}</p>}
             <div className="overview-content">
                 <div className="stats">
                     <div className="stat">
