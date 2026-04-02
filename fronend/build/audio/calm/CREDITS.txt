@@ -1,0 +1,30 @@
+Calm Studio — bundled audio (high-quality previews / royalty-free sources)
+
+All tracks loop in the app. Preview files are used under the same license as the
+full sound on Freesound where applicable.
+
+1) rain-soft.mp3
+   Source: Freesound — “Rain Loop (unfiltered)” by hargissssound
+   https://freesound.org/s/321647/
+   License: CC0 (public domain dedication)
+
+2) white-noise.mp3
+   Source: Freesound — “white noise.wav” by florianreichelt
+   https://freesound.org/s/448213/
+   License: CC0
+
+3) pink-calm.mp3
+   Source: Freesound — “Pink Noise” by theundecided
+   https://freesound.org/s/165057/
+   License: CC0
+
+4) nature-calm.mp3
+   Source: Freesound — “city park Tel Aviv Israel.wav” by yonts
+   https://freesound.org/s/268903/
+   License: CC0
+
+“Soft shimmer” in the app is generated in the browser (Web Audio) — no file.
+
+To refresh files from the network:
+  bash fronend/scripts/download-calm-audio.sh
+(run from the repository root)
