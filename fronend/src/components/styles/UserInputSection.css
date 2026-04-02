@@ -1,26 +1,49 @@
 .user-input-section {
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1;
-  color: white;
+  color: #f1f5f9;
+  padding: var(--zen-calm-pad-top) var(--zen-calm-pad-x) var(--zen-calm-pad-bottom);
+  box-sizing: border-box;
 }
 
 .dialog-box {
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid #5dade2;
-  padding: 30px;
-  border-radius: 16px;
+  background-color: rgba(26, 39, 68, 0.72);
+  border: 1px solid rgba(201, 162, 39, 0.38);
+  padding: clamp(1.35rem, 4vw, 1.75rem) clamp(1.25rem, 4vw, 1.65rem);
+  border-radius: var(--zen-radius);
   text-align: center;
-  width: 90%;
-  max-width: 420px;
-  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: min(26rem, 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   animation: fadeIn 0.8s ease-in-out;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 0 12px rgba(93, 173, 226, 0.3);
+  gap: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.dialog-box h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: var(--zen-font);
+  color: #f8fafc;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.28);
+}
+
+.dialog-box > p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.94rem;
+  line-height: 1.55;
+  font-family: var(--zen-font);
 }
 
 .options {
@@ -30,46 +53,48 @@
 }
 
 .option-button {
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  font-size: 1.1em;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: 10px;
+  background: rgba(36, 51, 82, 0.55);
+  color: #f1f5f9;
+  font-size: 1rem;
   font-weight: 500;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 .option-button:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.02);
+  background: rgba(36, 51, 82, 0.85);
+  border-color: rgba(201, 162, 39, 0.45);
+  transform: translateY(-1px);
 }
 
 .option-button.active {
-  background: #5dade2;
-  color: black;
-  font-weight: bold;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(93, 173, 226, 0.7);
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 700;
+  transform: scale(1.02);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.5);
 }
 
 .continue-btn {
   width: 100%;
   padding: 12px 0;
-  font-size: 1.1em;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
-  background: white;
-  color: black;
-  font-weight: 500;
+  border-radius: 10px;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .continue-btn:hover:enabled {
-  background: #f0f0f0;
+  background: var(--zen-accent-hover);
 }
 
 .continue-btn:disabled {
@@ -98,10 +123,17 @@
 }
 
 .duration-input input {
-  padding: 8px;
+  padding: 0.55rem 0.65rem;
   border-radius: 8px;
-  border: none;
-  margin-top: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  margin-top: 6px;
+  background: rgba(15, 22, 36, 0.45);
+  color: #f1f5f9;
+  font-family: var(--zen-font);
+}
+
+.duration-input input:focus {
+  outline: none;
+  border-color: var(--zen-accent);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
 }

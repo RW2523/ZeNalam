@@ -1,36 +1,25 @@
-// import React from "react";
-// import "./LandingPage.css";
-
-// const LandingPage = ({ onStart }) => {
-//   return (
-//     <div className="landing-page">
-//       <div className="center-content">
-//         <h1 className="title">CALM STUDIO</h1>
-//         <p className="subtitle">Breathe. Relax. Renew.</p>
-//         <button className="start-button" onClick={onStart}>
-//           Let’s Begin
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default LandingPage;
-
 import StarBackground from './StarBackground';
 import React from "react";
-import "./styles/LandingPage.css"; // Adjust the path as needed
+import ZenAppBar from "./ZenAppBar";
+import ZenMomentCard from "./ZenMomentCard";
+import "./styles/LandingPage.css";
 
 const LandingPage = ({ onStart }) => {
   return (
     <>
     <StarBackground />
+    <ZenAppBar />
     <div className="landing-page">
       <div className="center-content">
-        <h1 className="title">CALM STUDIO</h1>
-        <p className="subtitle">Breathe. Relax. Renew.</p>
-        <button className="start-button" onClick={onStart}>
-          Let’s Begin
+        <ZenMomentCard />
+        <h1 className="title">
+          Calm <span className="title-accent">Studio</span>
+        </h1>
+        <p className="subtitle">
+          Breathe. Relax. Renew. The bar above has a Sound menu—rain, white noise, pink calm, gentle nature ambience, or soft shimmer.
+        </p>
+        <button type="button" className="start-button" onClick={onStart}>
+          Let’s begin
         </button>
       </div>
     </div>

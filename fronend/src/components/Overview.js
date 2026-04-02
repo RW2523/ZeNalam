@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
-import axios from 'axios';
+import { api } from '../apiClient';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -12,7 +12,6 @@ import {
     Legend,
     Filler,
 } from 'chart.js';
-import { API_BASE_URL } from '../config';
 import './styles/Overview.css';
 
 ChartJS.register(
@@ -29,13 +28,13 @@ ChartJS.register(
 const emptyDataset = {
     label: 'Steps',
     data: [],
-    backgroundColor: 'rgba(106, 76, 147, 0.2)',
-    borderColor: '#6a4c93',
+    backgroundColor: 'rgba(201, 162, 39, 0.15)',
+    borderColor: '#c9a227',
     borderWidth: 2,
-    pointBackgroundColor: '#ff6f61',
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#ff6f61',
-    pointHoverBorderColor: '#fff',
+    pointBackgroundColor: '#c9a227',
+    pointBorderColor: '#ffffff',
+    pointHoverBackgroundColor: '#e8c547',
+    pointHoverBorderColor: '#ffffff',
     fill: true,
 };
 
@@ -53,16 +52,18 @@ const Overview = () => {
 
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState(null);
+    const [periodLabel, setPeriodLabel] = useState('Period');
 
     useEffect(() => {
         setLoading(true);
         setFetchError(null);
-        axios
-            .get(`${API_BASE_URL}/api/overviews`)
+        api
+            .get('/api/overviews')
             .then((response) => {
                 const { months = [], steps = [], timeProgress = 0, stepProgress = 0, targetProgress = 0 } = response.data;
+                const m = Array.isArray(months) ? months : [];
                 setChartData({
-                    labels: Array.isArray(months) ? months : [],
+                    labels: m,
                     datasets: [
                         {
                             ...emptyDataset,
@@ -71,12 +72,14 @@ const Overview = () => {
                     ],
                 });
                 setStats({ timeProgress, stepProgress, targetProgress });
+                setPeriodLabel(m.length ? m[m.length - 1] : 'Latest');
             })
             .catch((err) => {
                 console.error('Failed to fetch overview data:', err);
                 setFetchError(err.message || 'Failed to load overview');
                 setChartData({ labels: [], datasets: [{ ...emptyDataset, data: [] }] });
                 setStats({ timeProgress: 0, stepProgress: 0, targetProgress: 0 });
+                setPeriodLabel('—');
             })
             .finally(() => setLoading(false));
     }, []);
@@ -87,18 +90,18 @@ const Overview = () => {
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: 'rgba(255, 255, 255, 0.1)',
+                    color: 'rgba(255, 255, 255, 0.12)',
                 },
                 ticks: {
-                    color: '#fff',
+                    color: 'rgba(255, 255, 255, 0.85)',
                 },
             },
             x: {
                 grid: {
-                    color: 'rgba(255, 255, 255, 0.1)',
+                    color: 'rgba(255, 255, 255, 0.12)',
                 },
                 ticks: {
-                    color: '#fff',
+                    color: 'rgba(255, 255, 255, 0.85)',
                 },
             },
         },
@@ -122,23 +125,23 @@ const Overview = () => {
             <div className="overview-content">
                 <div className="stats">
                     <div className="stat">
-                        <h3>Total Time</h3>
+                        <h3>Total time</h3>
                         <div className="progress-bar">
                             <div className="progress" style={{ width: `${stats.timeProgress}%` }}></div>
                         </div>
                         <div className="details">
-                            <span>{stats.timeProgress * 10} Hr</span>
-                            <span>May</span>
+                            <span>{stats.timeProgress * 10} hr</span>
+                            <span>{periodLabel}</span>
                         </div>
                     </div>
                     <div className="stat">
-                        <h3>Total Steps</h3>
+                        <h3>Total steps</h3>
                         <div className="progress-bar">
                             <div className="progress" style={{ width: `${stats.stepProgress}%` }}></div>
                         </div>
                         <div className="details">
-                            <span>{stats.stepProgress * 100} St</span>
-                            <span>May</span>
+                            <span>{stats.stepProgress * 100} st</span>
+                            <span>{periodLabel}</span>
                         </div>
                     </div>
                     <div className="stat">
@@ -147,8 +150,8 @@ const Overview = () => {
                             <div className="progress" style={{ width: `${stats.targetProgress}%` }}></div>
                         </div>
                         <div className="details">
-                            <span>{stats.targetProgress * 100} St</span>
-                            <span>May</span>
+                            <span>{stats.targetProgress * 100} st</span>
+                            <span>{periodLabel}</span>
                         </div>
                     </div>
                 </div>

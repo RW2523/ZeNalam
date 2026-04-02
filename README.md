@@ -1,250 +1,258 @@
-# Wellness App - Team 13 (Zenalam)
+# ZeNalam (Wellness1)
 
-Welcome to the **Wellness App (Zenalam)** by Team 13 from UMass Amherst, Spring 2025. This full-stack wellness platform supports electronic wellness records (EWR), AI-driven insights, Apple HealthKit integration, and telehealth—all running in containerized microservices using Docker.
+ZeNalam is a full-stack **wellness web application**: dashboard analytics, Calm Studio (mindfulness flows), optional ambient soundscapes, peaceful mini-games, meal logging with ML-assisted food recognition, sleep-disorder insight via a random-forest model, profile and consultant browsing. A **Spring Boot** API fronts a **PostgreSQL** (or **H2** for local) database and proxies selected calls to a **Python Flask** ML service.
 
----
-
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [Technology Stack](#technology-stack)
-4. [Getting Started](#getting-started)
-5. [Docker Setup](#docker-setup)
-6. [Running the Application](#running-the-application)
-7. [Apple HealthKit Integration](#apple-healthkit-integration)
-8. [Machine Learning Services](#machine-learning-services)
-9. [Project Structure](#project-structure)
-10. [Security & Compliance](#security--compliance)
+> **Note:** The React app lives in the folder `fronend/` (historical spelling).
 
 ---
 
-## Project Overview
+## Table of contents
 
-Zenalam is a digital health platform that empowers users to track their fitness, mental health, diet, and wellness metrics. The system offers real-time AI recommendations and supports telehealth consultations. Health data is synced from Apple devices using a companion iOS app.
-
----
-
-## Features
-
-* **User Authentication & Role Management**
-* **Electronic Wellness Records (EWR)**
-* **AI-Driven Wellness Insights**
-* **Telehealth Video & Chat Consultations**
-* **Meal Logging via AI-based Food Classification**
-* **Calm Studio** with breathing, Surya Namaskar, and mental health assessments
-* **Sleep Disorder Prediction using ML**
-* **Apple HealthKit Integration** for real-time data sync
+1. [Architecture & stack](#architecture--stack)
+2. [Features & functionality](#features--functionality)
+3. [Project structure](#project-structure)
+4. [Prerequisites](#prerequisites)
+5. [How to build & run](#how-to-build--run)
+6. [Configuration](#configuration)
+7. [API overview](#api-overview)
+8. [Machine learning](#machine-learning)
+9. [Calm Studio audio](#calm-studio-audio)
+10. [Related repositories](#related-repositories)
+11. [Contributors & license](#contributors--license)
 
 ---
 
-## Technology Stack
+## Architecture & stack
 
-* **Frontend**: React.js + TailwindCSS (Dockerized, served via Nginx)
-* **Backend**: Spring Boot (Java, REST APIs)
-* **Database**: PostgreSQL (persistent storage)
-* **Machine Learning**: Python Flask server (Sleep prediction + Food classifier)
-* **Mobile Sync App**: Swift + HealthKit (HealthSyncApp)
-* **Containerization**: Docker + Docker Compose
+High level: **React SPA → Spring Boot REST API → JPA → PostgreSQL (or H2)**; **Spring Boot → Flask (HTTP)** for ML.
 
----
+| Layer | Technology | Role |
+|--------|------------|------|
+| **Frontend** | **React 19**, **Create React App 5**, **React Router 7** | SPA, routing, charts (Chart.js / react-chartjs-2), axios-based API client |
+| **UI** | **CSS** (ZeNalam slate + gold theme), **Bootstrap 5**, **Font Awesome**, **react-icons** | Layout, dashboard, Calm Studio styling |
+| **Backend** | **Spring Boot 3.2**, **Java 17** | REST controllers, CORS, `RestTemplate` to ML service |
+| **Persistence** | **Spring Data JPA**, **Hibernate** | Entities, repositories |
+| **Database (default)** | **PostgreSQL 15** | Primary store when not using the `local` profile |
+| **Database (local dev)** | **H2** (in-memory) | `SPRING_PROFILES_ACTIVE=local` — no Postgres required |
+| **ML service** | **Python 3**, **Flask** | `/predict` (sleep RF + encoders), `/food` (image → SigLIP / transformers) |
+| **ML libraries** | **scikit-learn**, **joblib**, **pandas**, **PyTorch**, **Hugging Face Transformers**, **Pillow** | Model inference |
+| **Containers** | **Docker**, **Docker Compose** | Optional all-in-one run (db, backend, python-server, frontend) |
 
-## Getting Started
-
-### Prerequisites
-
-* Docker & Docker Compose installed
-* Node.js and npm (if running frontend separately)
-* Java 17+ and Maven (if running backend separately)
-
-### Clone Repositories
-
-```bash
-git clone https://github.com/RW2523/wellness1.git
-git clone https://github.com/RW2523/HealthSyncApp.git
-cd wellness1
-```
+The frontend does **not** call Flask directly for production flows: the browser talks to **port 8080**, and Spring forwards to **`ml.service.url`** (default `http://localhost:5002`, or `http://python-server:5002` in Compose).
 
 ---
 
-## Docker Setup
+## Features & functionality
 
-### Directory Structure:
+### Account & shell
+
+- **Register / login** — Session is represented on the client with `localStorage` (`id`, `userName`, `userEmail`). Several routes are wrapped with a **RequireAuth** gate (must be logged in).
+- **Dashboard** — Overview stats, activity cards, workout distribution chart, wellness quotes carousel, community sidebar.
+- **Profile** — Load/update extended wellness profile fields for the signed-in user.
+
+### Health & content (API-driven)
+
+- **Sleep insight** — Form options from seeded reference data; submits features to the backend → Python random-forest pipeline; displays model label (informational, not medical advice).
+- **Meal logger** — Image upload → Spring → Flask food classifier (top predictions); manual entry; save meals; list logs filtered by user.
+- **Consult** — Browse consultants from the database.
+- **Zen / Calm Studio** (`/zen` and related routes) — Landing “Calm Studio”, guided input, **breathing** session, **Surya** (yoga poses from API), **psych** checklist (questions from API).
+- **Sound menu** (Zen bar) — **Soft shimmer** (Web Audio synth) or looping **MP3** soundscapes (rain, white noise, pink calm, nature calm). See [Calm Studio audio](#calm-studio-audio).
+- **Peaceful games** (`/games`) — Six low-pressure experiences: ripples, bubbles, color harmony, drifting stars, **Bloom garden** and **Flow river** (canvas + optional Web Audio). All games are optional and non-competitive.
+
+### Developer-facing
+
+- **Database seeding** — Reference quotes, consultants, yoga poses, psych questions, sleep form JSON, sample activities (profile `!test`).
+- **CORS** — Configurable allowed origins for the React dev server and deployment hostnames.
+
+---
+
+## Project structure
 
 ```
 wellness1/
-├── backend/       # Spring Boot App
-├── frontend/      # React.js App
-├── ml-service/    # Flask-based ML server
-├── docker-compose.yml
+├── fronend/                 # React app (CRA) — note spelling
+│   ├── public/
+│   │   └── audio/calm/      # Calm Studio MP3s + CREDITS.txt
+│   ├── src/
+│   │   ├── components/      # Pages, dashboard, games/, Zen, etc.
+│   │   ├── zenSoundscape.js
+│   │   ├── apiClient.js
+│   │   └── ...
+│   └── package.json
+├── backend/                 # Spring Boot (Maven)
+│   ├── src/main/java/.../auth/
+│   └── src/main/resources/
+│       ├── application.properties          # PostgreSQL defaults
+│       └── application-local.properties    # H2 + quoted identifiers
+├── python-server/           # Flask ML API + pickles + optional HF cache
+│   ├── app.py
+│   ├── rf_model.pkl
+│   └── label_encoders.pkl
+├── docker-compose.yml       # db, backend, python-server, frontend
+├── start-backend.sh         # Docker Compose helper (when Docker is available)
+├── RUN.md                   # Extra run notes
+└── README.md
 ```
-
-### Build and Run
-
-```bash
-docker-compose up --build
-```
-
-This spins up:
-
-* React frontend
-* Spring Boot backend (API layer)
-* PostgreSQL DB
-* Flask ML server
 
 ---
 
-## Running the Application
+## Prerequisites
 
-### React Frontend
+- **Node.js** (LTS recommended; **Node 22+** may need the `NODE_OPTIONS=--localstorage-file=...` workaround already set in `fronend/package.json` for CRA).
+- **npm**
+- **Java 17** and **Maven** (for running the backend outside Docker).
+- **Python 3.10+** and **pip** (for `python-server` outside Docker).
+- **Docker Desktop** (optional) — for `docker compose up` or `start-backend.sh`.
+
+---
+
+## How to build & run
+
+### Option A — Docker Compose (full stack)
+
+Builds and runs **PostgreSQL**, **Python ML**, **Spring Boot**, and **Nginx-served React** (port **3000** mapped to container 80).
 
 ```bash
-cd frontend
+docker compose up --build
+```
+
+- Frontend: **http://localhost:3000**
+- API: **http://localhost:8080**
+- ML: **http://localhost:5002**
+
+If the backend image expects a JAR, ensure `backend` Dockerfile / build context produces the artifact (see `backend/Dockerfile`).
+
+Helper script (starts db, python-server, backend — you run the React app locally):
+
+```bash
+./start-backend.sh
+# then: cd fronend && npm start
+```
+
+### Option B — Local development (typical)
+
+**1. Python ML (port 5002)**
+
+```bash
+cd python-server
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+First food-model load may download Hugging Face weights (cached under `python-server/.cache`).
+
+**2. Spring Boot (port 8080)**
+
+*With H2 (no PostgreSQL):*
+
+```bash
+cd backend
+mvn -q -DskipTests package
+SPRING_PROFILES_ACTIVE=local java -jar target/loginapp-0.0.1-SNAPSHOT.jar
+```
+
+*With PostgreSQL:* align `application.properties` (or env vars) with your DB, then:
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+**3. React (port 3000)**
+
+```bash
+cd fronend
 npm install
 npm start
 ```
 
-Or access via Docker container at `http://localhost:3000` or `http://localhost` depending on config.
+Open **http://localhost:3000**. The app calls **http://localhost:8080** unless you set `REACT_APP_API_URL`.
 
-### Spring Boot Backend
+### Production build (frontend only)
 
 ```bash
-cd backend
-mvn clean install
-java -jar target/backend-0.0.1-SNAPSHOT.jar
+cd fronend
+npm run build
 ```
 
-Backend runs at `http://localhost:8080`
+Static output is in `fronend/build/`. Serve with any static host; set **`REACT_APP_API_URL`** at build time to your API origin.
 
-### PostgreSQL Database
+### Backend JAR artifact name
 
-Connected via `docker-compose`. Credentials set in `application.properties`:
-
-```
-spring.datasource.url=jdbc:postgresql://db:5432/wellness
-spring.datasource.username=wellness_user
-spring.datasource.password=securepassword
-```
+The Maven artifact is **`loginapp-0.0.1-SNAPSHOT.jar`** (`backend/pom.xml`). Adjust commands if your version differs.
 
 ---
 
-## Apple HealthKit Integration
+## Configuration
 
-The `HealthSyncApp` is a custom iOS app that collects and uploads data from HealthKit.
-
-### Supported Metrics
-
-* Steps
-* Heart Rate
-* Respiratory Rate
-* Oxygen Saturation
-* Walking Distance
-* Water Intake
-* Calories
-* Active Energy
-
-### How It Works
-
-1. Install the [HealthSyncApp](https://github.com/RW2523/HealthSyncApp) on an iPhone.
-2. Authorize HealthKit permissions.
-3. Tap `Upload Health Data` to send data to the backend.
-4. Backend receives and stores data in PostgreSQL.
-
-> Note: Due to Apple’s restrictions, a paid developer account may be required for full HealthKit functionality.
+| Variable / setting | Purpose |
+|--------------------|---------|
+| `REACT_APP_API_URL` | Base URL for the Java API (default `http://localhost:8080`). |
+| `SPRING_PROFILES_ACTIVE=local` | Use H2 and `application-local.properties`. |
+| `SPRING_DATASOURCE_*` | PostgreSQL URL, user, password (see `application.properties`). |
+| `ML_SERVICE_URL` | Flask base URL (default `http://localhost:5002`). |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated browser origins allowed by Spring. |
 
 ---
 
-## Machine Learning Services
+## API overview
 
-### Sleep Disorder Prediction
+Illustrative routes (see Java controllers under `backend/.../controller/` for the full set):
 
-* Model: Random Forest trained on Kaggle Sleep dataset
-* Deployed via Flask API at `/api/auth/pred`
-* Input: Age, BMI, Sleep Duration, etc.
-* Output: Predicted condition (e.g., Insomnia)
-
-### Food Image Classification
-
-* Model: Vision Transformer (HuggingFace Transformers)
-* Input: Food Image
-* Output: Top 3 predicted food items
+| Area | Method & path | Description |
+|------|----------------|-------------|
+| Auth | `POST /api/auth/register`, `POST /api/auth/login` | Register / login |
+| Auth | `POST /api/auth/pred` | Sleep prediction (proxied to Flask) |
+| Auth | `POST /api/auth/food` | Food image (multipart → Flask) |
+| Auth | `POST /api/auth/meals` | Save meal log |
+| Auth | `GET /api/auth/mealslog?userId=` | List meal logs for user |
+| Content | `GET /api/content/quotes`, `.../consultants`, `.../yoga-poses`, etc. | Seeded / DB content |
+| Users | `GET /api/users/{id}`, `PUT /api/users/{id}/profile` | Profile |
+| Wellness | `GET /api/activities`, `GET /api/overviews`, `GET /api/workout-distribution` | Dashboard data |
 
 ---
 
-## Project Structure
+## Machine learning
 
-```
-frontend/               # React App (with Calm Studio, Dashboards, etc)
-backend/                # Spring Boot REST APIs
-ml-service/             # Python Flask service
-HealthSyncApp/          # iOS app using HealthKit
-postgres/               # Dockerized PostgreSQL DB
+- **Sleep disorder insight** — **Random forest** + **label encoders** (`rf_model.pkl`, `label_encoders.pkl`). Flask builds a row from posted features + defaults; returns a decoded label list; Spring returns a single string to the client.
+- **Food image** — **SigLIP**-style classifier via **Transformers** (`prithivMLmods/Food-101-93M` in `app.py`). If the model fails to load, the endpoint returns an error JSON (Spring surfaces this to the client).
+
+---
+
+## Calm Studio audio
+
+Bundled MP3s live in **`fronend/public/audio/calm/`** with sources and licenses in **`CREDITS.txt`**. To re-download the same files:
+
+```bash
+bash fronend/scripts/download-calm-audio.sh
 ```
 
----
-
-## API Documentation
-```
-Authentication
-POST /api/auth/register — User registration
-
-POST /api/auth/login — User login
-
-Activity & Progress
-GET /api/activities — Activity goals and progress
-
-GET /api/overviews — Line chart monthly stats
-
-GET /api/workout-distribution — Workout distribution
-
-Meals & Classification
-POST /api/auth/food — Upload food image
-
-POST /api/auth/meals — Log a meal
-
-POST /api/auth/mealslog — View meal logs
-
-Sleep Prediction
-POST /api/auth/pred — Sleep disorder prediction (structured features)
-
-ML Service Endpoints (Flask)
-POST /food — Food classification from image
-
-POST /predict — Predict sleep disorder (encoded)
-```
-
-## Security & Compliance
-
-* Passwords hashed with BCrypt
-* MFA login implemented
-* OAuth role-based access control
-* SQL injection protection using prepared statements
-* HIPAA/GDPR-compliant design considerations
+(run from the repository root)
 
 ---
 
-## Maintainers
+## Related repositories
 
-* Richard Watson (RW2523)
-* Varun Palnati (vpalnati77)
-* Murtaza Ujjainwala (murtaza-ujjainwala)
-* Pramith Kiran (Pramith08)
+- **HealthSyncApp** (if used) — separate iOS / HealthKit project referenced in course materials; not vendored inside this repo. Integrations depend on that app and backend endpoints being deployed together.
 
 ---
 
-## License
+## Contributors & license
 
-This project is for academic purposes (UMass Amherst CS 520, Spring 2025). Not licensed for commercial use.
+Maintainers (course / team context):
 
----
+- Richard Watson (RW2523)
+- Varun Palnati (vpalnati77)
+- Murtaza Ujjainwala (murtaza-ujjainwala)
+- Pramith Kiran (Pramith08)
 
-## Resources
-
-* [Main GitHub Repo](https://github.com/RW2523/wellness1)
-* [HealthSyncApp Repo](https://github.com/RW2523/HealthSyncApp)
-* [Apple HealthKit Docs](https://developer.apple.com/documentation/healthkit)
-* [Docker Docs](https://docs.docker.com/)
+This project was developed for **academic purposes** (e.g. UMass Amherst CS coursework). **Not** production-hardened: treat authentication and data protection as **demonstration-level**; use proper password hashing, HTTPS, and security review before any real deployment.
 
 ---
 
-Thank you for using Zenalam Wellness App!
+## Additional docs
+
+- **`RUN.md`** — Step-by-step run notes and troubleshooting.
+- **`fronend/public/audio/calm/CREDITS.txt`** — Third-party audio attribution.

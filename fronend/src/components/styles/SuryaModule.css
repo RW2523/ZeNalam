@@ -1,28 +1,38 @@
 .surya-container {
   max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  color: white;
+  margin: 0 auto;
+  padding: var(--zen-calm-pad-top) var(--zen-calm-pad-x) var(--zen-calm-pad-bottom);
+  color: #f1f5f9;
+  font-family: var(--zen-font);
   text-align: center;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
 }
 
 .surya-title {
-  font-size: 1.8em;
-  margin-bottom: 20px;
+  font-size: clamp(1.25rem, 3.5vw, 1.65rem);
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.35;
 }
 
 .pose-image {
   width: 100%;
   max-width: 400px;
   height: auto;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.25rem;
+  border-radius: var(--zen-radius);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  box-shadow: 0 12px 40px rgba(15, 22, 36, 0.4);
 }
 
 .pose-description {
-  font-size: 1.2em;
-  margin-bottom: 30px;
+  font-size: 1.05rem;
+  margin-bottom: 1.75rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.9);
 }
 
 .surya-controls {
@@ -33,23 +43,24 @@
 }
 
 .surya-controls button {
-  padding: 12px 24px;
-  font-size: 1em;
+  padding: 12px 22px;
+  font-size: 0.95rem;
   border: none;
-  border-radius: 8px;
-  background: white;
-  color: black;
-  font-weight: 500;
+  border-radius: 10px;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
 
-.surya-controls button:hover {
-  background: #f0f0f0;
+.surya-controls button:hover:not(:disabled) {
+  background: var(--zen-accent-hover);
 }
 
 .surya-controls button:disabled {
-  background: #ccc;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -57,4 +68,18 @@
   margin-top: 10px;
   font-size: 1em;
   opacity: 0.8;
+}
+
+.surya-status,
+.surya-error {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.surya-error {
+  color: #ffb4a8;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
 }

@@ -6,7 +6,9 @@ import {
   faStethoscope,
   faBed,
   faSpa,
-  faSignOutAlt
+  faSignOutAlt,
+  faUtensils,
+  faGamepad,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../logo1.png'; // Adjust the path as needed
@@ -17,6 +19,7 @@ function Sidebar() {
   const handleSignOut = () => {
     localStorage.removeItem('id');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
     navigate('/');
   };
 
@@ -47,11 +50,16 @@ function Sidebar() {
               <FontAwesomeIcon icon={faSpa} className="fa-icon" />
             </Link>
           </li>
-          {/* <li>
-            <Link to="/meal" title="Meal Classifier">
-              <FontAwesomeIcon icon={faBed} className="fa-icon" />
+          <li>
+            <Link to="/meal" title="Meal logger">
+              <FontAwesomeIcon icon={faUtensils} className="fa-icon" />
             </Link>
-          </li> */}
+          </li>
+          <li>
+            <Link to="/games" title="Peaceful games">
+              <FontAwesomeIcon icon={faGamepad} className="fa-icon" />
+            </Link>
+          </li>
           <li>
             <button
               onClick={handleSignOut}

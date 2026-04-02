@@ -5,7 +5,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - app-network
 
@@ -25,20 +26,32 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       ML_SERVICE_URL: http://python-server:5002
+      SPRING_JPA_SHOW_SQL: "false"
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://localhost
     depends_on:
-      - db
-      - python-server
+      db:
+        condition: service_healthy
+      python-server:
+        condition: service_started
     networks:
       - app-network
 
   db:
     image: postgres:15
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: wellness
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wellness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - app-network
 

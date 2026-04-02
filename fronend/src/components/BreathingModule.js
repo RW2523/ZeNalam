@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./styles/BreathingModule.css";
 import StarBackground from './StarBackground';
+import ZenAppBar from "./ZenAppBar";
 
 const BreathingModule = () => {
   const location = useLocation();
@@ -88,13 +89,14 @@ const BreathingModule = () => {
   return (
     <>
     <StarBackground />
+    <ZenAppBar />
     <div className="breathing-container">
       {phase === "breathe" && (
         <div className="session-header">
           <div className="session-timer">
             {formatTime(timeRemaining)}
           </div>
-          <button className="end-btn" onClick={handleEndSession}>
+          <button type="button" className="end-btn" onClick={handleEndSession}>
             End Session
           </button>
         </div>
@@ -131,10 +133,10 @@ const BreathingModule = () => {
             </p>
 
             <div className="session-actions">
-              <button className="action-btn" onClick={() => window.location.reload()}>
-                Start Again
+              <button type="button" className="action-btn" onClick={() => window.location.reload()}>
+                Start again
               </button>
-              <button className="action-btn" onClick={() => navigate("/dashboard")}>
+              <button type="button" className="action-btn" onClick={() => navigate("/dashboard")}>
                 Dashboard
               </button>
             </div>

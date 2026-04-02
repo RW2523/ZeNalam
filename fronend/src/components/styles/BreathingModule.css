@@ -1,18 +1,22 @@
 .breathing-container {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: #f1f5f9;
+  font-family: var(--zen-font);
   text-align: center;
   z-index: 1;
+  padding: var(--zen-calm-pad-top) var(--zen-calm-pad-x) var(--zen-calm-pad-bottom);
+  box-sizing: border-box;
 }
 
 .session-header {
   position: absolute;
-  top: 20px;
+  top: calc(var(--zen-calm-bar-height, 3.25rem) + 0.35rem);
   width: 90%;
   max-width: 800px;
   display: flex;
@@ -24,32 +28,34 @@
 }
 
 .session-timer {
-  font-size: 1.5em;
-  font-weight: 500;
-  color: white;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--zen-accent);
 }
 
 .end-btn {
-  padding: 12px 24px;
-  font-size: 1.1em;
+  padding: 10px 20px;
+  font-size: 0.95rem;
   border: none;
   border-radius: 8px;
-  background: white;
-  color: black;
-  font-weight: 500;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .end-btn:hover {
-  background: #f0f0f0;
+  background: var(--zen-accent-hover);
 }
 
 .circle {
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(36, 51, 82, 0.65);
+  border: 2px solid rgba(201, 162, 39, 0.35);
   margin-bottom: 30px;
   transition: all 6s ease-in-out;
   display: flex;
@@ -57,26 +63,31 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+  box-shadow: 0 8px 32px rgba(15, 22, 36, 0.35);
 }
 
 .inhale {
   transform: scale(1.5);
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(201, 162, 39, 0.22);
+  border-color: rgba(201, 162, 39, 0.55);
 }
 
 .exhale {
   transform: scale(1);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(36, 51, 82, 0.55);
+  border-color: rgba(201, 162, 39, 0.25);
 }
 
 .circle h2 {
-  font-size: 1.8em;
+  font-size: 1.65rem;
   margin: 0;
+  color: #f8fafc;
 }
 
 .circle p {
   margin: 4px 0;
-  font-size: 1.1em;
+  font-size: 1rem;
+  color: rgba(226, 232, 240, 0.9);
 }
 
 .breathing-info p {
@@ -87,24 +98,25 @@
 .start-btn {
   margin-top: 20px;
   padding: 12px 24px;
-  font-size: 1.1em;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
-  background: white;
-  color: black;
-  font-weight: 500;
+  border-radius: 10px;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .start-btn:hover {
-  background: #f0f0f0;
+  background: var(--zen-accent-hover);
 }
 
 .session-complete {
   text-align: center;
   margin-top: 20px;
-  color: white;
+  color: #f1f5f9;
   animation: fadeIn 1s ease;
 }
 
@@ -128,17 +140,18 @@
 
 .action-btn {
   padding: 12px 24px;
-  font-size: 1.1em;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
-  background: white;
-  color: black;
-  font-weight: 500;
+  border-radius: 10px;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .action-btn:hover {
-  background: #f0f0f0;
+  background: var(--zen-accent-hover);
 }
 

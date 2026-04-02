@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { api } from '../apiClient';
+import '../auth-pages.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from || '/dashboard';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -16,146 +17,73 @@ const Login = () => {
     setMessage('');
     setMessageType('');
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
+      const res = await api.post('/api/auth/login', { email, password });
+      const msg = res.data?.message || '';
 
-      if (res.data.message === 'Invalid credentials') {
+      if (msg === 'Invalid credentials' || res.status === 401) {
         setMessage('Try again! Invalid credentials.');
         setMessageType('error');
-      } else if (res.data.message && res.data.message.includes('Login successful')) {
-        const msg = res.data.message;
-        const charIndex = msg.indexOf('ID=');
-        if (charIndex !== -1) {
-          const userId = msg.substring(charIndex + 3).trim();
-          localStorage.setItem('id', userId);
-        }
+        return;
+      }
+
+      if (res.data?.userId != null) {
+        localStorage.setItem('id', String(res.data.userId));
+        localStorage.setItem('userEmail', res.data.email || email);
+        localStorage.setItem('userName', res.data.name || '');
         setMessage('Login successful! Redirecting...');
         setMessageType('success');
-        localStorage.setItem('userEmail', email);
-        setTimeout(() => navigate('/dashboard'), 1000);
+        setTimeout(() => navigate(redirectTo, { replace: true }), 800);
+        return;
       }
+
+      setMessage('Unexpected response from server.');
+      setMessageType('error');
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      const isNetworkError = err.code === 'ERR_NETWORK' || err.message === 'Network Error' || !err.response;
+      const msg = isNetworkError
+        ? 'Cannot connect to server. Start PostgreSQL (./start-database.sh) and the backend on port 8080.'
+        : (err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setMessage(msg);
       setMessageType('error');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>ZeNalam</h1>
-        <p style={styles.quote}>“Take a deep breath and find your balance.”</p>
+    <div className="auth-shell">
+      <div className="auth-brand">
+        <h1>ZeNalam</h1>
+        <p className="auth-tagline">Take a deep breath and find your balance.</p>
       </div>
-      <form onSubmit={login} style={styles.form}>
-        <h2 style={styles.formTitle}>Login</h2>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          onChange={e => setEmail(e.target.value)} 
+      <form className="auth-card" onSubmit={login}>
+        <h2>Login</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
           value={email}
           required
-          style={styles.input}
+          autoComplete="email"
         />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          onChange={e => setPassword(e.target.value)} 
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
           value={password}
           required
-          style={styles.input}
+          autoComplete="current-password"
         />
-        <button type="submit" style={styles.button}>Login</button>
-
-        {/* Message display */}
+        <button type="submit" className="auth-submit">Sign in</button>
         {message && (
-          <p style={{ 
-            ...styles.message, 
-            color: messageType === 'error' ? 'red' : 'green' 
-          }}>
+          <p className={`auth-message ${messageType === 'error' ? 'auth-message--error' : 'auth-message--success'}`}>
             {message}
           </p>
         )}
       </form>
-      <p style={styles.footerText}>
-        Don't have an account? <Link to="/register" style={styles.link}>Register</Link>
+      <p className="auth-footer">
+        Don&apos;t have an account? <Link to="/register">Create an account</Link>
       </p>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f8ff',
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-    color: '#333',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '30px',
-  },
-  title: {
-    fontSize: '48px',
-    color: '#2e8b57',
-    marginBottom: '10px',
-  },
-  quote: {
-    fontStyle: 'italic',
-    color: '#5f6368',
-    fontSize: '18px',
-    marginTop: '10px',
-  },
-  form: {
-    backgroundColor: '#fff',
-    padding: '40px',
-    borderRadius: '10px',
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  formTitle: {
-    fontSize: '24px',
-    color: '#2e8b57',
-    marginBottom: '20px',
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    padding: '12px',
-    marginBottom: '15px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    fontSize: '16px',
-  },
-  button: {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#2e8b57',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-  },
-  footerText: {
-    marginTop: '20px',
-    fontSize: '16px',
-    color: '#5f6368',
-  },
-  link: {
-    textDecoration: 'none',
-    color: '#2e8b57',
-    fontWeight: 'bold',
-  },
-  message: {
-    marginTop: '15px',
-    fontSize: '14px',
-    textAlign: 'center',
-  },
 };
 
 export default Login;

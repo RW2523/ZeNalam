@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/UserInputSection.css";
 import StarBackground from './StarBackground';
+import ZenAppBar from "./ZenAppBar";
 
 const UserInputSection = ({ showDialog }) => {
   const [selected, setSelected] = useState("");
@@ -30,6 +31,7 @@ const UserInputSection = ({ showDialog }) => {
   return (
     <>
     <StarBackground />
+    <ZenAppBar />
     <div className="user-input-section">
       {showDialog && (
         <div className="dialog-box">
@@ -38,6 +40,7 @@ const UserInputSection = ({ showDialog }) => {
           <div className="options">
             {options.map((option) => (
               <button
+                type="button"
                 key={option}
                 className={`option-button ${selected === option ? "active" : ""}`}
                 onClick={() => setSelected(option)}
@@ -60,7 +63,7 @@ const UserInputSection = ({ showDialog }) => {
             </div>
           )}
 
-          <button className="continue-btn" onClick={handleSubmit} disabled={!selected}>
+          <button type="button" className="continue-btn" onClick={handleSubmit} disabled={!selected}>
             Continue
           </button>
         </div>

@@ -1,45 +1,63 @@
 .landing-page {
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
+  padding: var(--zen-calm-pad-top) var(--zen-calm-pad-x) var(--zen-calm-pad-bottom);
+  box-sizing: border-box;
 }
 
 .center-content {
   text-align: center;
   z-index: 2;
+  width: 100%;
+  max-width: min(26rem, 100%);
+  margin: 0 auto;
 }
 
 .title {
-  font-size: 3em;
-  margin-bottom: 10px;
+  font-family: var(--zen-font);
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  margin: 0 0 0.65rem;
   font-weight: 700;
-  color: white;
-  /* Remove glow */
-  text-shadow: none;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #f1f5f9;
+  text-shadow: 0 1px 2px rgba(15, 22, 36, 0.45);
+}
+
+.title-accent {
+  color: var(--zen-accent);
+  font-weight: 700;
 }
 
 .subtitle {
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  color: #dfe6e9;
+  font-family: var(--zen-font);
+  font-size: clamp(1rem, 2.8vw, 1.125rem);
+  margin: 0 auto 1.75rem;
+  color: rgba(226, 232, 240, 0.82);
+  font-weight: 400;
+  max-width: 22rem;
+  line-height: 1.55;
 }
 
 .start-button {
-  padding: 12px 24px;
-  font-size: 1.1em;
+  padding: 14px 28px;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
-  background: white;          /* ✅ white button */
-  color: black;               /* ✅ black text */
-  font-weight: 500;
+  border-radius: 10px;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  font-weight: 600;
+  font-family: var(--zen-font);
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .start-button:hover {
-  background: #f0f0f0;
-  color: black;
+  background: var(--zen-accent-hover);
+  transform: translateY(-1px);
 }

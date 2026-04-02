@@ -1,0 +1,217 @@
+/* Personalized daily card + aurora — Calm Studio */
+.zen-moment {
+  position: relative;
+  width: 100%;
+  max-width: min(22rem, 100%);
+  margin: 0 auto 1.5rem;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zen-moment--entered {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.zen-moment__aurora {
+  position: absolute;
+  inset: -40% -25% -35%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.zen-moment__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+.zen-moment__blob--a {
+  width: 140%;
+  height: 85%;
+  left: -20%;
+  top: -15%;
+  background: radial-gradient(
+    ellipse at 30% 40%,
+    rgba(201, 162, 39, 0.45) 0%,
+    rgba(201, 162, 39, 0) 68%
+  );
+  animation: zen-moment-float-a 14s ease-in-out infinite;
+}
+
+.zen-moment__blob--b {
+  width: 100%;
+  height: 100%;
+  right: -35%;
+  bottom: -25%;
+  background: radial-gradient(
+    ellipse at 70% 60%,
+    rgba(147, 180, 220, 0.22) 0%,
+    rgba(36, 51, 82, 0) 65%
+  );
+  animation: zen-moment-float-b 18s ease-in-out infinite;
+}
+
+.zen-moment__blob--c {
+  width: 80%;
+  height: 70%;
+  left: 10%;
+  bottom: -40%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(232, 197, 71, 0.2) 0%,
+    transparent 70%
+  );
+  animation: zen-moment-float-c 11s ease-in-out infinite;
+}
+
+@keyframes zen-moment-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(6%, 4%) scale(1.06);
+    opacity: 0.65;
+  }
+}
+
+@keyframes zen-moment-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-5%, -3%) rotate(-4deg);
+  }
+}
+
+@keyframes zen-moment-float-c {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(-4%, 5%);
+    opacity: 0.55;
+  }
+}
+
+.zen-moment__glass {
+  position: relative;
+  z-index: 1;
+  padding: 1.15rem 1.25rem 1.2rem;
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    rgba(36, 51, 82, 0.42) 0%,
+    rgba(26, 39, 68, 0.38) 100%
+  );
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  box-shadow:
+    0 4px 28px rgba(15, 22, 36, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: center;
+}
+
+.zen-moment__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 39, 0.88);
+}
+
+.zen-moment__greeting {
+  margin: 0 0 0.5rem;
+  font-family: var(--zen-font);
+  font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+  font-weight: 600;
+  color: #f1f5f9;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.zen-moment__name {
+  color: var(--zen-accent);
+  font-weight: 700;
+}
+
+.zen-moment__streak {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: rgba(226, 232, 240, 0.72);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.zen-moment__streak-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--zen-accent);
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.65);
+  animation: zen-moment-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes zen-moment-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.zen-moment__quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-family: var(--zen-font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.55;
+  color: rgba(241, 245, 249, 0.92);
+}
+
+.zen-moment__loading {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(226, 232, 240, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zen-moment {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .zen-moment__blob--a,
+  .zen-moment__blob--b,
+  .zen-moment__blob--c {
+    animation: none;
+    opacity: 0.4;
+  }
+
+  .zen-moment__streak-dot {
+    animation: none;
+  }
+}

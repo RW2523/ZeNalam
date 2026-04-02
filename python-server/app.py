@@ -1,7 +1,14 @@
+import os
+# Use project-local cache so we don't need write access to ~/.cache
+_root = os.path.dirname(os.path.abspath(__file__))
+_hf_cache = os.path.join(_root, ".cache", "huggingface")
+os.makedirs(_hf_cache, exist_ok=True)
+os.environ.setdefault("HF_HOME", _hf_cache)
+os.environ.setdefault("TRANSFORMERS_CACHE", _hf_cache)
+
 from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
-from transformers import AutoImageProcessor, SiglipForImageClassification
 from PIL import Image
 import torch
 import logging
@@ -10,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
-# Load model and encoders
+# Load model and encoders (sleep prediction)
 model = joblib.load("rf_model.pkl")
 le_dict = joblib.load("label_encoders.pkl")
 
@@ -44,8 +51,21 @@ ordered_fields = [
 ]
 
 food_model_name = "prithivMLmods/Food-101-93M"
-food_model = SiglipForImageClassification.from_pretrained(food_model_name)
-food_processor = AutoImageProcessor.from_pretrained(food_model_name)
+food_model = None
+food_processor = None
+
+def _load_food_model():
+    global food_model, food_processor
+    if food_model is not None:
+        return True
+    try:
+        from transformers import AutoImageProcessor, SiglipForImageClassification
+        food_model = SiglipForImageClassification.from_pretrained(food_model_name)
+        food_processor = AutoImageProcessor.from_pretrained(food_model_name)
+        return True
+    except Exception as e:
+        logging.warning("Food model not loaded: %s", e)
+        return False
 
 food_labels = {
     "0": "apple_pie", "1": "baby_back_ribs", "2": "baklava", "3": "beef_carpaccio", "4": "beef_tartare",
@@ -73,6 +93,8 @@ food_labels = {
 @app.route("/food", methods=["POST"])
 def predict_food():
     try:
+        if not _load_food_model():
+            return jsonify({"error": "Food classification model is not available"}), 503
         if 'image' not in request.files:
             return jsonify({"error": "No image provided"}), 400
 
@@ -91,7 +113,7 @@ def predict_food():
             for i in sorted(range(len(probs)), key=lambda x: probs[x], reverse=True)[:5]
         }
 
-        logging.error(f"Food prediction : {str(top_preds)}")
+        logging.info("Food prediction top-5: %s", top_preds)
 
         return jsonify(top_preds)
 

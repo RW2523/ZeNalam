@@ -1,0 +1,119 @@
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(160deg, var(--zen-primary) 0%, var(--zen-primary-light) 45%, #0f1829 100%);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-brand h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  color: var(--zen-surface-elevated);
+  letter-spacing: -0.02em;
+}
+
+.auth-brand .auth-tagline {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-style: italic;
+  max-width: 22rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--zen-surface-elevated);
+  padding: 2rem 2.25rem;
+  border-radius: var(--zen-radius);
+  box-shadow: var(--zen-shadow);
+  border: 1px solid var(--zen-border);
+}
+
+.auth-card h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--zen-primary);
+  text-align: center;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--zen-border);
+  font-size: 1rem;
+  font-family: var(--zen-font);
+  transition: border-color 0.2s;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: var(--zen-accent);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 0.25rem;
+  background: var(--zen-accent);
+  color: var(--zen-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--zen-font);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.auth-submit:hover {
+  background: var(--zen-accent-hover);
+}
+
+.auth-submit:active {
+  transform: scale(0.99);
+}
+
+.auth-message {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-message--error {
+  color: var(--zen-error);
+}
+
+.auth-message--success {
+  color: var(--zen-success);
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-footer a {
+  color: var(--zen-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}

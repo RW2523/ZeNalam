@@ -8,7 +8,9 @@ import com.example.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,42 +22,46 @@ public class AuthService {
     @Autowired
     private MealLogRepository mealLogRepository;
 
-    public String register(User user) {
+    public Map<String, Object> register(User user) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
-            return "User already exists";
+            return Map.of("message", "User already exists");
         }
-        userRepository.save(user);
-        return "User registered successfully";
+        User saved = userRepository.save(user);
+        Map<String, Object> ok = new HashMap<>();
+        ok.put("message", "User registered successfully");
+        ok.put("userId", saved.getId());
+        return ok;
     }
 
-    public String login(String email, String password) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return "Login successful ID=" + String.valueOf(user.get().getId());
+    public Map<String, Object> login(String email, String password) {
+        Optional<User> opt = userRepository.findByEmail(email);
+        if (opt.isPresent() && opt.get().getPassword().equals(password)) {
+            User u = opt.get();
+            Map<String, Object> ok = new HashMap<>();
+            ok.put("message", "Login successful");
+            ok.put("userId", u.getId());
+            ok.put("name", u.getName());
+            ok.put("email", u.getEmail());
+            return ok;
         }
-        return "Invalid credentials";
+        return Map.of("message", "Invalid credentials");
     }
 
     public void saveMealLog(MealLog mealLogDto) {
         MealLog mealLog = new MealLog();
         mealLog.setFoodName(mealLogDto.getFoodName());
         mealLog.setMealType(mealLogDto.getMealType());
-        mealLog.setMealTime(mealLogDto.getMealTime()); // assuming conversion
+        mealLog.setMealTime(mealLogDto.getMealTime());
         mealLog.setQuantityInGrams(mealLogDto.getQuantityInGrams());
-        mealLog.setUser_id(mealLogDto.getUser_id());
-
-        // User user = userRepository.findById(mealLogDto.getId())
-        //     .orElseThrow(() -> new RuntimeException("User not found"));
-        List<MealLog> mealLogs = mealLogRepository.findAll();
-        for (MealLog mealLog1 : mealLogs) {
-            System.out.println(mealLog1);
-        }
-
+        mealLog.setUserId(mealLogDto.getUserId());
         mealLogRepository.save(mealLog);
     }
 
-    public List<MealLog> getAllMealLogs() {
-        return mealLogRepository.findAll();
+    public List<MealLog> getMealLogsForUser(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+        return mealLogRepository.findByUserIdOrderByIdDesc(userId);
     }
 }

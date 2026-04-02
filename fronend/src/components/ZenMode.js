@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { api } from '../apiClient';
 
 function ZenMode() {
   const [breathState, setBreathState] = useState('Inhale');
@@ -6,21 +7,29 @@ function ZenMode() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef(null);
-
-  const quotes = [
-    "Breathe in calm, breathe out stress.",
-    "Peace begins with a single breath.",
-    "Let go. Relax. Be present.",
-    "Silence your thoughts. Embrace the now."
-  ];
   const [quote, setQuote] = useState('');
 
   useEffect(() => {
-    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get('/api/content/quotes');
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (!cancelled && list.length > 0) {
+          const pick = list[Math.floor(Math.random() * list.length)];
+          setQuote(pick.text || '');
+        }
+      } catch {
+        if (!cancelled) setQuote('Breathe in calm, breathe out stress.');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
+  useEffect(() => {
     const breathInterval = setInterval(() => {
-      setBreathState(prev => (prev === 'Inhale' ? 'Exhale' : 'Inhale'));
-      setCycle(c => c + 1);
+      setBreathState((prev) => (prev === 'Inhale' ? 'Exhale' : 'Inhale'));
+      setCycle((c) => c + 1);
     }, 4000);
 
     const timerInterval = setInterval(() => {
@@ -48,7 +57,7 @@ function ZenMode() {
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return `${m}m ${s < 10 ? '0' + s : s}s`;
+    return `${m}m ${s < 10 ? `0${s}` : s}s`;
   };
 
   return (
@@ -60,23 +69,24 @@ function ZenMode() {
           style={{
             ...styles.circle,
             transform: breathState === 'Inhale' ? 'scale(1.2)' : 'scale(0.8)',
-            backgroundColor: breathState === 'Inhale' ? '#aad8d3' : '#d6e6f2'
+            backgroundColor: breathState === 'Inhale' ? 'rgba(201, 162, 39, 0.35)' : 'rgba(26, 39, 68, 0.2)',
+            border: '2px solid rgba(201, 162, 39, 0.4)',
           }}
         >
           <p style={styles.breathText}>{breathState}</p>
         </div>
       </div>
 
-      <h2 style={styles.title}>🧘‍♂️ Zen Mode</h2>
+      <h2 style={styles.title}>Zen mode</h2>
       <p style={styles.quote}>{quote}</p>
 
       <div style={styles.infoBox}>
-        <p>🕒 Time Elapsed: <strong>{formatTime(elapsedSeconds)}</strong></p>
-        <p>🌬️ Breathing Cycles: <strong>{cycle}</strong></p>
+        <p>Time elapsed: <strong>{formatTime(elapsedSeconds)}</strong></p>
+        <p>Breathing cycles: <strong>{cycle}</strong></p>
       </div>
 
-      <button onClick={toggleSound} style={styles.soundButton}>
-        {soundOn ? '🔇 Turn Sound Off' : '🔊 Turn Sound On'}
+      <button type="button" onClick={toggleSound} style={styles.soundButton}>
+        {soundOn ? 'Turn sound off' : 'Turn sound on'}
       </button>
     </div>
   );
@@ -85,16 +95,17 @@ function ZenMode() {
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #e0f7fa, #f1f8e9)',
+    background: 'linear-gradient(165deg, var(--zen-surface) 0%, #e8ecf4 50%, var(--zen-surface-elevated) 100%)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
-    padding: '2rem'
+    padding: '2rem',
+    fontFamily: 'var(--zen-font)',
   },
   glowContainer: {
-    marginBottom: '2rem'
+    marginBottom: '2rem',
   },
   circle: {
     width: '180px',
@@ -104,41 +115,44 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'transform 4s ease-in-out, background-color 4s ease-in-out',
-    boxShadow: '0 0 30px rgba(0,0,0,0.15)'
+    boxShadow: 'var(--zen-shadow)',
   },
   breathText: {
     fontSize: '1.5rem',
     fontWeight: '600',
-    color: '#333'
+    color: 'var(--zen-primary)',
   },
   title: {
-    fontSize: '2rem',
+    fontSize: '1.75rem',
     fontWeight: '700',
-    color: '#2e7d32',
-    marginBottom: '1rem'
+    color: 'var(--zen-primary)',
+    marginBottom: '1rem',
   },
   quote: {
     fontStyle: 'italic',
-    color: '#555',
-    fontSize: '1.2rem',
-    maxWidth: '500px'
+    color: 'var(--zen-text-muted)',
+    fontSize: '1.1rem',
+    maxWidth: '500px',
+    lineHeight: 1.5,
   },
   infoBox: {
     marginTop: '1rem',
-    fontSize: '1.1rem',
-    color: '#444'
+    fontSize: '1rem',
+    color: 'var(--zen-text)',
   },
   soundButton: {
     marginTop: '1.5rem',
-    padding: '0.7rem 1.2rem',
+    padding: '0.75rem 1.25rem',
     fontSize: '1rem',
-    backgroundColor: '#80cbc4',
-    color: '#fff',
+    backgroundColor: 'var(--zen-accent)',
+    color: 'var(--zen-primary)',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '10px',
     cursor: 'pointer',
-    transition: 'background 0.3s'
-  }
+    fontWeight: 600,
+    fontFamily: 'var(--zen-font)',
+    transition: 'background 0.2s ease',
+  },
 };
 
 export default ZenMode;

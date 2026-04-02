@@ -25,8 +25,8 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "NODE_OPTIONS=--localstorage-file=/tmp/node-react-localstorage node --localstorage-file=/tmp/node-react-localstorage node_modules/react-scripts/bin/react-scripts.js start",
+    "build": "NODE_OPTIONS=--localstorage-file=/tmp/node-react-localstorage node --localstorage-file=/tmp/node-react-localstorage node_modules/react-scripts/bin/react-scripts.js build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

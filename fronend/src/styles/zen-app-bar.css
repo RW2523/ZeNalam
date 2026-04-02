@@ -1,0 +1,147 @@
+/* Top bar for Calm Studio / star-background experiences */
+.zen-app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  min-height: var(--zen-calm-bar-height, 3.25rem);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: max(0.45rem, env(safe-area-inset-top, 0px)) var(--zen-calm-pad-x, 1.25rem) 0.5rem;
+  background: rgba(26, 39, 68, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.22);
+}
+
+.zen-app-bar__link--start {
+  justify-self: start;
+}
+
+.zen-app-bar__mid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.zen-app-bar__end {
+  justify-self: end;
+  min-width: 0;
+}
+
+.zen-app-bar__sound {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-radius: 999px;
+  background: rgba(36, 51, 82, 0.6);
+  color: rgba(241, 245, 249, 0.85);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.zen-app-bar__sound:hover {
+  color: var(--zen-accent);
+  border-color: rgba(201, 162, 39, 0.55);
+  background: rgba(36, 51, 82, 0.85);
+}
+
+.zen-app-bar__sound--on {
+  color: var(--zen-accent);
+  border-color: rgba(201, 162, 39, 0.65);
+  box-shadow: 0 0 14px rgba(201, 162, 39, 0.25);
+}
+
+.zen-app-bar__sound-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.zen-app-bar__sound-label-text {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.55);
+}
+
+.zen-app-bar__select {
+  max-width: min(11.5rem, 42vw);
+  padding: 0.28rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--zen-font);
+  color: #f1f5f9;
+  background: rgba(36, 51, 82, 0.95);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.zen-app-bar__select:hover,
+.zen-app-bar__select:focus {
+  border-color: var(--zen-accent);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
+}
+
+.zen-app-bar__select option {
+  color: var(--zen-primary);
+  background: #f1f5f9;
+}
+
+.zen-app-bar__credits {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.45);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+
+.zen-app-bar__credits:hover {
+  color: var(--zen-accent);
+}
+
+.zen-app-bar__link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.zen-app-bar__link:hover {
+  color: var(--zen-accent);
+}
+
+.zen-app-bar__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--zen-accent);
+}
+
+.zen-app-bar__link--placeholder {
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}

@@ -1,9 +1,7 @@
 package com.example.auth.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +18,6 @@ import com.example.auth.repository.WorkoutDistributionRepository;
 
 import com.example.auth.model.Activity;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api")
 public class WellnessController {
@@ -32,15 +29,7 @@ public class WellnessController {
 
     @GetMapping("/activities")
     public List<Activity> getActivities() {
-        List<Activity> activities = activityRepo.findAll();
-        if (activities.isEmpty()) {
-            activities = List.of(
-                new Activity("Running", 70, "10 km", "7 km", 3, "Cardio"),
-                new Activity("Swimming", 50, "20 laps", "10 laps", 5, "Cardio"),
-                new Activity("Yoga", 90, "30 sessions", "27 sessions", 1, "Flexibility")
-            );
-        }
-        return activities;
+        return activityRepo.findAll();
     }
 
     @GetMapping("/overviews")
@@ -48,32 +37,26 @@ public class WellnessController {
         List<OverviewStat> stats = overviewStatRepo.findAll();
         List<OverviewTotal> totals = overviewTotalRepo.findAll();
 
-        if (totals.isEmpty()) {
-            OverviewTotal fallbackTotal = new OverviewTotal(60, 75, 85);
-            totals = List.of(fallbackTotal);
-        }
+        Map<String, Object> response = new HashMap<>();
 
         if (stats.isEmpty()) {
-            stats = List.of(
-                new OverviewStat("January", 10000),
-                new OverviewStat("February", 8500),
-                new OverviewStat("March", 9200),
-                new OverviewStat("April", 11000),
-                new OverviewStat("May", 9500)
-            );
+            response.put("months", List.of());
+            response.put("steps", List.of());
+        } else {
+            response.put("months", stats.stream().map(OverviewStat::getMonth).toList());
+            response.put("steps", stats.stream().map(OverviewStat::getSteps).toList());
         }
 
-        OverviewTotal total = totals.get(0);
-
-        List<String> months = stats.stream().map(OverviewStat::getMonth).toList();
-        List<Integer> steps = stats.stream().map(OverviewStat::getSteps).toList();
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("months", months);
-        response.put("steps", steps);
-        response.put("timeProgress", total.getTimeProgress());
-        response.put("stepProgress", total.getStepProgress());
-        response.put("targetProgress", total.getTargetProgress());
+        if (totals.isEmpty()) {
+            response.put("timeProgress", 0);
+            response.put("stepProgress", 0);
+            response.put("targetProgress", 0);
+        } else {
+            OverviewTotal total = totals.get(0);
+            response.put("timeProgress", total.getTimeProgress());
+            response.put("stepProgress", total.getStepProgress());
+            response.put("targetProgress", total.getTargetProgress());
+        }
 
         return response;
     }
@@ -82,20 +65,14 @@ public class WellnessController {
     public Map<String, Object> getWorkoutDistribution() {
         List<WorkoutDistribution> data = workoutRepo.findAll();
 
-        if (data.isEmpty()) {
-            data = List.of(
-                new WorkoutDistribution("Cardio", 45),
-                new WorkoutDistribution("Strength", 35),
-                new WorkoutDistribution("Flexibility", 20)
-            );
-        }
-
-        List<String> labels = data.stream().map(WorkoutDistribution::getLabel).collect(Collectors.toList());
-        List<Integer> values = data.stream().map(WorkoutDistribution::getValue).collect(Collectors.toList());
-
         Map<String, Object> response = new HashMap<>();
-        response.put("labels", labels);
-        response.put("values", values);
+        if (data.isEmpty()) {
+            response.put("labels", List.of());
+            response.put("values", List.of());
+        } else {
+            response.put("labels", data.stream().map(WorkoutDistribution::getLabel).collect(Collectors.toList()));
+            response.put("values", data.stream().map(WorkoutDistribution::getValue).collect(Collectors.toList()));
+        }
 
         return response;
     }

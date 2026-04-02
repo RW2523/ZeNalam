@@ -1,5 +1,6 @@
 package com.example.auth.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,11 +15,10 @@ public class MealLog {
     private String mealType;
     private String mealTime;
     private int quantityInGrams;
-    private Long user_id;
 
-    // @ManyToOne
-    // @JoinColumn(name = "user_id", nullable = false)
-    // private User user;
+    @Column(name = "user_id")
+    @JsonProperty("user_id")
+    private Long userId;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -35,6 +35,6 @@ public class MealLog {
     public int getQuantityInGrams() { return quantityInGrams; }
     public void setQuantityInGrams(int quantityInGrams) { this.quantityInGrams = quantityInGrams; }
 
-    public Long getUser_id() { return user_id; }
-    public void setUser_id(Long user_id) { this.user_id = user_id; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 }

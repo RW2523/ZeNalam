@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaBiking, FaRunning, FaWalking, FaDumbbell } from 'react-icons/fa';
 import './styles/ActivityCards.css';
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { api } from '../apiClient';
 
 const iconMap = {
     cycling: <FaBiking />,
@@ -27,8 +26,8 @@ const ActivityCards = () => {
     useEffect(() => {
         setLoading(true);
         setError(null);
-        axios
-            .get(`${API_BASE_URL}/api/activities`)
+        api
+            .get('/api/activities')
             .then((response) => setActivities(Array.isArray(response.data) ? response.data : []))
             .catch((err) => {
                 console.error('Error fetching activities:', err);

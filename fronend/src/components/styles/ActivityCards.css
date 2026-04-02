@@ -3,9 +3,9 @@
   justify-content: space-between;
   flex-wrap: wrap;
   margin-bottom: 20px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  border-radius: 30px;
+  padding: 4px 0;
+  border-radius: 12px;
+  gap: 8px;
 }
 
 .activity-cards-loading,
@@ -14,38 +14,41 @@
   width: 100%;
   margin: 0.5rem 0;
   font-size: 14px;
-  color: #333;
+  color: var(--zen-text-muted);
 }
 
 .activity-cards-error {
-  color: #b91c1c;
+  color: var(--zen-error);
 }
 
 .activity-card {
-  flex: 1 1 30%; 
-  max-width: 300px; 
-  background-color: #ecfdf5;
-  margin: 10px; 
+  flex: 1 1 30%;
+  max-width: 300px;
+  background-color: var(--zen-surface-elevated);
+  margin: 8px;
   padding: 20px;
-  border-radius: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.329);
+  border-radius: 12px;
+  box-shadow: var(--zen-shadow);
+  border: 1px solid var(--zen-border);
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
+
 .activity-icon {
-  font-size: 40px;
+  font-size: 36px;
   margin-right: 10px;
-  color: #ecfdf5 !important;
-  background-color: #2dd4bf;
+  color: var(--zen-primary) !important;
+  background-color: rgba(201, 162, 39, 0.2);
   padding: 10px;
-  border-radius: 20px;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .activity-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(26, 39, 68, 0.12);
+  border-color: rgba(201, 162, 39, 0.35);
 }
 
 .activity-header {
@@ -54,16 +57,10 @@
   margin-bottom: 10px;
 }
 
-.activity-icon {
-  font-size: 40px;
-  margin-right: 10px;
-  color: #2dd4bf;
-}
-
 .activity-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--zen-primary);
 }
 
 .activity-info {
@@ -73,7 +70,7 @@
 
 .activity-details {
   font-size: 14px;
-  color: #666;
+  color: var(--zen-text-muted);
   margin-bottom: 10px;
 }
 
@@ -86,25 +83,26 @@
 
 .progress-label {
   font-size: 14px;
-  color: #333;
+  color: var(--zen-text);
 }
 
 .progress-percent {
   font-size: 14px;
-  color: #333;
+  font-weight: 600;
+  color: var(--zen-accent-hover);
 }
 
-.progress-bar {
+.activity-card .progress-bar {
   width: 100%;
   height: 10px;
-  background-color: #d1fae5;
+  background-color: var(--zen-border);
   border-radius: 5px;
   overflow: hidden;
 }
 
-.progress {
+.activity-card .progress {
   height: 100%;
-  background-color: #2dd4bf;
+  background-color: var(--zen-accent);
   border-radius: 5px;
 }
 
@@ -113,16 +111,16 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: #333;
-  margin-top: 5px; 
+  color: var(--zen-text);
+  margin-top: 6px;
 }
 
 .days-left {
-  font-size: 14px;
-  color: #0e7490;
-  font-weight: 900;
-  background-color: #ccfbf1;
-  padding: 5px 10px;
+  font-size: 13px;
+  color: var(--zen-primary);
+  font-weight: 700;
+  background-color: rgba(201, 162, 39, 0.18);
+  padding: 6px 12px;
   border-radius: 20px;
   text-align: center;
 }

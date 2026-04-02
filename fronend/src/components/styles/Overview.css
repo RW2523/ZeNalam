@@ -1,15 +1,17 @@
 .overview {
-  background: linear-gradient(135deg, #5eead4, #38bdf8);
-  padding: 10px;
-  border-radius: 20px;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--zen-primary) 0%, var(--zen-primary-light) 100%);
+  padding: 16px;
+  border-radius: 12px;
+  color: var(--zen-surface-elevated);
+  box-shadow: var(--zen-shadow);
+  border: 1px solid rgba(201, 162, 39, 0.25);
 }
 
 .overview h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
+  margin-bottom: 12px;
+  font-size: 1.15rem;
   font-weight: 600;
+  color: var(--zen-surface-elevated);
 }
 
 .overview-loading,
@@ -19,9 +21,9 @@
 }
 
 .overview-error {
-  color: #fef2f2;
-  background: rgba(185, 28, 28, 0.3);
-  padding: 0.5rem;
+  color: #fecaca;
+  background: rgba(180, 35, 24, 0.35);
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
 }
 
@@ -29,53 +31,72 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
 }
 
 .stats {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 20%;
+  width: 22%;
+  min-width: 120px;
 }
 
 .stat {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 10px 12px;
   border-radius: 8px;
   text-align: left;
+  border: 1px solid rgba(201, 162, 39, 0.2);
 }
 
 .stat h3 {
-  margin-bottom: 5px;
-  font-size: 16px;
+  margin-bottom: 6px;
+  font-size: 14px;
   font-weight: 600;
+  color: var(--zen-accent);
 }
 
 .stat .progress-bar {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   height: 8px;
 }
 
 .stat .progress {
   height: 100%;
-  background-color: white;
+  background-color: var(--zen-accent);
+  border-radius: 4px;
 }
 
 .stat .details {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .chart {
   flex: 1;
   height: 250px;
   width: 50%;
+  min-width: 200px;
 }
+
 .chart canvas {
   border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+  .overview-content {
+    flex-direction: column;
+  }
+  .stats {
+    width: 100%;
+  }
+  .chart {
+    width: 100%;
+  }
 }

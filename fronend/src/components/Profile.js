@@ -1,17 +1,6 @@
-import React, { useState, useEffect } from 'react';
-
-const PROFILE_STORAGE_KEY = 'wellness_profile';
-
-function loadStoredProfile() {
-  try {
-    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return { ...getEmptyProfile(), ...parsed };
-    }
-  } catch (_) {}
-  return null;
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import PageLayout from './PageLayout';
+import { api } from '../apiClient';
 
 function getEmptyProfile() {
   return {
@@ -36,172 +25,170 @@ function getEmptyProfile() {
   };
 }
 
+function toStr(v) {
+  if (v == null || v === undefined) return '';
+  return String(v);
+}
+
 function ProfilePage() {
   const [profile, setProfile] = useState(getEmptyProfile());
   const [saveMessage, setSaveMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  const userId = typeof localStorage !== 'undefined' ? localStorage.getItem('id') : null;
+
+  const loadProfile = useCallback(async () => {
+    if (!userId) {
+      setLoadError('Sign in to view your profile.');
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await api.get(`/api/users/${userId}`);
+      const p = res.data?.profile || {};
+      const base = getEmptyProfile();
+      const merged = { ...base };
+      merged.name = toStr(res.data?.name);
+      merged.email = toStr(res.data?.email);
+      Object.keys(base).forEach((k) => {
+        if (k !== 'name' && k !== 'email') {
+          merged[k] = toStr(p[k]);
+        }
+      });
+      setProfile(merged);
+    } catch (e) {
+      setLoadError(e.response?.data?.message || e.message || 'Could not load profile.');
+      setProfile(getEmptyProfile());
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    const stored = loadStoredProfile();
-    const email = localStorage.getItem('userEmail') || '';
-    const name = (typeof stored?.name === 'string' && stored.name) ? stored.name : '';
-    setProfile((prev) => ({
-      ...prev,
-      ...(stored || {}),
-      email: email || (stored && stored.email) || prev.email,
-      name: name || prev.name,
-    }));
-  }, []);
+    loadProfile();
+  }, [loadProfile]);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
     setSaveMessage('');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!userId) return;
+    setSaveMessage('');
     try {
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+      const { email: _e, ...rest } = profile;
+      await api.put(`/api/users/${userId}/profile`, rest);
+      localStorage.setItem('userName', profile.name || '');
       setSaveMessage('Profile saved.');
-    } catch (_) {
-      setSaveMessage('Failed to save.');
+    } catch (e) {
+      setSaveMessage(e.response?.data?.message || e.message || 'Failed to save.');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.header}>🌱 Your Wellness Profile</h2>
-
-        <div style={styles.grid}>
-          {/* Basic Details */}
-          {[
-            { label: 'Full Name', name: 'name' },
-            { label: 'Email', name: 'email' },
-            { label: 'Age', name: 'age', type: 'number' },
-            { label: 'Gender', name: 'gender' },
-            { label: 'Occupation', name: 'occupation' },
-            { label: 'Height (cm)', name: 'height', type: 'number' },
-            { label: 'Weight (kg)', name: 'weight', type: 'number' }
-          ].map(({ label, name, type = 'text' }) => (
-            <div key={name} style={styles.fieldGroup}>
-              <label style={styles.label}>{label}</label>
-              <input
-                name={name}
-                value={profile[name]}
-                type={type}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-          ))}
-
-          {/* Goals */}
-          {[
-            { label: 'Sleep Goal (hrs)', name: 'sleepGoal', type: 'number' },
-            { label: 'Fitness Goal', name: 'fitnessGoal' },
-            { label: 'Mental Wellbeing Goal', name: 'mentalWellbeingGoal' }
-          ].map(({ label, name, type = 'text' }) => (
-            <div key={name} style={styles.fieldGroup}>
-              <label style={styles.label}>{label}</label>
-              <input
-                name={name}
-                value={profile[name]}
-                type={type}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-          ))}
-
-          {/* Wellness Routine Questions */}
-          {[
-            { label: 'Usual Wake-up Time', name: 'wakeUpTime', type: 'time' },
-            { label: 'Usual Bed Time', name: 'bedTime', type: 'time' },
-            { label: 'How many meals do you eat per day?', name: 'mealsPerDay', type: 'number' },
-            { label: 'Dietary Preference (e.g., Veg, Vegan, Non-veg)', name: 'dietaryPreference' },
-            { label: 'Average daily water intake (in liters)', name: 'waterIntake', type: 'number' },
-            { label: 'How often do you exercise per week?', name: 'exerciseFrequency' },
-            { label: 'Stress level (Low / Medium / High)', name: 'stressLevel' },
-            { label: 'Do you practice meditation? (Yes / No / Occasionally)', name: 'meditationHabit' }
-          ].map(({ label, name, type = 'text' }) => (
-            <div key={name} style={styles.fieldGroup}>
-              <label style={styles.label}>{label}</label>
-              <input
-                name={name}
-                value={profile[name]}
-                type={type}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-          ))}
+    <PageLayout
+      title="Your wellness profile"
+      subtitle="Stored securely for your account. Update anytime."
+      wide
+    >
+      {loading && <p className="page-shell__subtitle">Loading profile…</p>}
+      {loadError && (
+        <div className="page-alert page-alert--error" role="alert">
+          {loadError}
         </div>
+      )}
+      {!loading && !loadError && (
+        <>
+          <div className="page-form-grid">
+            {[
+              { label: 'Full name', name: 'name' },
+              { label: 'Email', name: 'email', readOnly: true },
+              { label: 'Age', name: 'age', type: 'number' },
+              { label: 'Gender', name: 'gender' },
+              { label: 'Occupation', name: 'occupation' },
+              { label: 'Height (cm)', name: 'height', type: 'number' },
+              { label: 'Weight (kg)', name: 'weight', type: 'number' },
+            ].map(({ label, name, type = 'text', readOnly }) => (
+              <div key={name} className="page-field">
+                <label htmlFor={`profile-${name}`}>{label}</label>
+                <input
+                  id={`profile-${name}`}
+                  name={name}
+                  value={profile[name]}
+                  type={type}
+                  onChange={readOnly ? undefined : handleChange}
+                  readOnly={readOnly}
+                  className="page-input"
+                  style={readOnly ? { opacity: 0.85 } : undefined}
+                />
+              </div>
+            ))}
 
-        {saveMessage && (
-          <p style={{ marginTop: '1rem', textAlign: 'center', color: saveMessage === 'Profile saved.' ? '#28a745' : '#dc3545' }}>
-            {saveMessage}
-          </p>
-        )}
-        <button onClick={handleSubmit} style={styles.submitButton}>
-          Save Profile
-        </button>
-      </div>
-    </div>
+            {[
+              { label: 'Sleep goal (hours)', name: 'sleepGoal', type: 'number' },
+              { label: 'Fitness goal', name: 'fitnessGoal' },
+              { label: 'Mental wellbeing goal', name: 'mentalWellbeingGoal' },
+            ].map(({ label, name, type = 'text' }) => (
+              <div key={name} className="page-field">
+                <label htmlFor={`profile-${name}`}>{label}</label>
+                <input
+                  id={`profile-${name}`}
+                  name={name}
+                  value={profile[name]}
+                  type={type}
+                  onChange={handleChange}
+                  className="page-input"
+                />
+              </div>
+            ))}
+
+            {[
+              { label: 'Usual wake-up time', name: 'wakeUpTime', type: 'time' },
+              { label: 'Usual bed time', name: 'bedTime', type: 'time' },
+              { label: 'Meals per day', name: 'mealsPerDay', type: 'number' },
+              { label: 'Dietary preference (e.g. veg, vegan)', name: 'dietaryPreference' },
+              { label: 'Daily water intake (liters)', name: 'waterIntake', type: 'number' },
+              { label: 'Exercise frequency per week', name: 'exerciseFrequency' },
+              { label: 'Stress level (low / medium / high)', name: 'stressLevel' },
+              { label: 'Meditation (yes / no / occasionally)', name: 'meditationHabit' },
+            ].map(({ label, name, type = 'text' }) => (
+              <div key={name} className="page-field">
+                <label htmlFor={`profile-${name}`}>{label}</label>
+                <input
+                  id={`profile-${name}`}
+                  name={name}
+                  value={profile[name]}
+                  type={type}
+                  onChange={handleChange}
+                  className="page-input"
+                />
+              </div>
+            ))}
+          </div>
+
+          {saveMessage && (
+            <p
+              className={
+                saveMessage === 'Profile saved.'
+                  ? 'page-alert page-alert--success'
+                  : 'page-alert page-alert--error'
+              }
+              role="status"
+            >
+              {saveMessage}
+            </p>
+          )}
+          <button type="button" className="page-btn-primary" onClick={handleSubmit}>
+            Save profile
+          </button>
+        </>
+      )}
+    </PageLayout>
   );
 }
-
-const styles = {
-  container: {
-    padding: '2rem',
-    backgroundColor: '#f4f7fa',
-    minHeight: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  card: {
-    background: '#fff',
-    borderRadius: '12px',
-    boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-    padding: '2rem',
-    width: '100%',
-    maxWidth: '800px'
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '1.5rem',
-    color: '#333'
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem 2rem',
-    marginBottom: '1.5rem'
-  },
-  fieldGroup: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  label: {
-    marginBottom: '0.4rem',
-    fontWeight: '500',
-    color: '#444'
-  },
-  input: {
-    padding: '0.5rem',
-    borderRadius: '6px',
-    border: '1px solid #ccc',
-    fontSize: '1rem'
-  },
-  submitButton: {
-    width: '100%',
-    padding: '0.75rem',
-    fontSize: '1.1rem',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer'
-  }
-};
 
 export default ProfilePage;
